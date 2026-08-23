@@ -1,10 +1,10 @@
-# PROGRESS — 2026-08-23 13:25 更新
+# PROGRESS — 2026-08-23 16:20 更新（推送 GitHub 后）
 
 > 按用户指令定期更新的进度快照。详细留痕见 `AI_WORKFLOW.md`，验收见 `ACCEPTANCE_MATRIX.md`，测试见 `TEST_REPORT.md`。
 
 ## 一句话状态
 
-**M1–M4 全部完成并通过验收（103 单测 + 47 E2E 全绿，覆盖率 96.5%/88.4%），录屏与全部验收文档已产出；正在做 P0 最终独立 Review，通过后打 tag `p0-done`。M5 未启动（按门槛设计）。**
+**M1–M4 全部完成并验收；已推送 https://github.com/kingsleyli920/demo-e-commerce （main/dev/`p0-done`），GitHub Actions 两轮全绿，Final PR [#1](https://github.com/kingsleyli920/demo-e-commerce/pull/1) 已创建待合并。M5 未启动（需 API Key，待用户确认）。**
 
 ## 时间线（均为 2026-08-23，净耗时不含 01:35–12:16 的 Claude 会话限额暂停）
 
@@ -25,8 +25,8 @@
 
 ## 待用户决定（不阻塞本地交付）
 
-1. **GitHub remote**：仓库当前无 remote。建仓+推送后 CI 与 Final PR（`dev → main`）即可实跑；PR 描述已备好（`docs/FINAL_PR.md`）。gh CLI 已登录（kingsleyli920）。
-2. **M5 AI 导购**：门槛三条中「累计 ≤24h 且剩余 ≥6h」满足、「验收全过」满足，「独立 Review 无 Critical/High」等最终 Review 结论；但 M5 需要 `ANTHROPIC_API_KEY`（真实密钥）——按你的规则属于必须停下询问的事项，故 **不自动启动**。
+1. **合并 Final PR #1**：CI 绿、MERGEABLE，等你确认后合并（涉及合并 PR 需询问）。
+2. **M5 AI 导购**：门槛三条全部满足（含终审无 Critical/High）；但需要 `ANTHROPIC_API_KEY`（真实密钥/付费）——按你的规则停下询问，不自动启动。
 
 ## 阻塞
 

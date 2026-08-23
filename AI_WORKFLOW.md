@@ -328,5 +328,5 @@ pnpm build      → 绿；pnpm demo:record → 3 分 05 秒录屏 + 12 截图
 - **最有效的工具**：① Workflow 多子代理编排（5 路 API 版本调研 + 6 路 seed 生成并行，直接避免 Better Auth `account.issuer`、Vitest 4 projects、Next 16 `proxy.ts`/force-dynamic 等至少 4 个会翻车的点）；② code-reviewer 只读子代理（两轮审查抓到 open redirect `/\` 绕过、addToCart 并发丢增量、guard 正则误/漏拦等真问题）。**最无效/代价最高**：录屏时长控制的试错（4 次迭代，主要是停留时长估算）。
 - **失败与恢复中最值得沉淀的 3 条**（已分别落实）：① 训练记忆与当前版本 API 的偏差必须在写码前用 node_modules/.d.ts + context7 实测消除（写入 CLAUDE.md）；② 并发写一律用单语句原子操作（onConflictDoUpdate / 条件 UPDATE ... WHERE status=旧值），不要读-判-写（写入 server.md 意识）；③ 守卫类脚本必须带回归用例清单（guard-bash.sh 17 条自测）。
 - **如果重来会改变的 3 个做法**：① M2 收尾时先跑「里程碑收尾自查清单」（chore(mN) 提交这次漏做补录）；② 录屏第一版就用 ffprobe 校验时长并按目标时长反推停留；③ 独立 Review 固定安排在里程碑边界的后台时段（首轮因会话限额中断浪费了一次启动）。
-- **Final PR**：材料就绪（docs/FINAL_PR.md）；仓库暂无 GitHub remote，建仓/推送为对外操作待用户确认后执行 `gh pr create --base main --head dev --body-file docs/FINAL_PR.md`。
+- **Final PR**：https://github.com/kingsleyli920/demo-e-commerce/pull/1（dev → main，CI 绿，按用户指示暂不合并）；仓库 https://github.com/kingsleyli920/demo-e-commerce ，CI run 32673047541 / 32673195255 均 success。
 - **录屏路径**：docs/screenshots/demo-p0-key-flows.webm（3 分 05 秒）｜ **tag**：p0-done（chore(m4) 后打）。

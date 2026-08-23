@@ -58,6 +58,6 @@ pnpm demo:record               → 3 分 05 秒录屏 + 12 截图（docs/screens
 
 ## 7. 遗留与待用户决定（无阻塞）
 
-1. **GitHub remote 不存在**：CI 工作流与 PR 描述（`docs/FINAL_PR.md`）已就绪；建仓+推送属对外操作，待确认后执行（gh 已登录 kingsleyli920）。
+1. **已推送 GitHub**：https://github.com/kingsleyli920/demo-e-commerce（main / dev / tag `p0-done`）。CI 两轮全绿（dev push 2m21s、PR 2m52s）；Final PR [#1](https://github.com/kingsleyli920/demo-e-commerce/pull/1)（dev → main）已创建，按用户约定**未合并**。
 2. **M5 AI 导购未启动**：门槛三条中 1、2 已满足，累计 3.9h ≤ 24h 且剩余充足；但 M5 需要 `ANTHROPIC_API_KEY`（真实密钥/按量付费），属用户明确要求停下询问的事项。
 3. `BLOCKERS.md` / `CONTINUE_FROM_HERE.md` 未创建：无「3 个方案仍失败」的阻塞项，亦未触发硬停止。

@@ -78,5 +78,4 @@
 
 ## 6. 已知限制
 
-- CI 未在 GitHub Actions 实跑（无 remote）；本地按 CI 相同顺序执行全部步骤通过。
 - E2E 与 `db:seed` 会重置**开发库**（README 已标注）。
