@@ -1,14 +1,12 @@
 # 云集优选 · AI 电商 Demo
 
-[![CI](https://github.com/kingsleyli920/demo-e-commerce/actions/workflows/ci.yml/badge.svg?branch=dev)](../../actions/workflows/ci.yml)
+[![CI](https://github.com/kingsleyli920/demo-e-commerce/actions/workflows/ci.yml/badge.svg?branch=dev)](https://github.com/kingsleyli920/demo-e-commerce/actions/workflows/ci.yml)
 
 > 单商户、单仓的 Web 电商 Demo：商品目录/搜索 → SKU 选择 → 购物车 → Mock 结算与支付 → 订单状态流转 → 最小后台；完整自动化测试 + CI；并以仓库本身（计划、测试、提交历史、`AI_WORKFLOW.md`、ADR）展示人机协作过程。
 >
 > 接手入口：[`IMPLEMENTATION_BRIEF.md`](IMPLEMENTATION_BRIEF.md) · 验收依据：[`docs/plan/03-P0完成标准与测试矩阵.md`](docs/plan/03-P0完成标准与测试矩阵.md) · 验收结果：[`ACCEPTANCE_MATRIX.md`](ACCEPTANCE_MATRIX.md) · 测试报告：[`TEST_REPORT.md`](TEST_REPORT.md) · 协作记录：[`AI_WORKFLOW.md`](AI_WORKFLOW.md)
 >
 > 关键流程录屏（3 分 05 秒）：[`docs/screenshots/demo-p0-key-flows.webm`](docs/screenshots/demo-p0-key-flows.webm) · 截图见 [`docs/screenshots/`](docs/screenshots/)
->
-> 注：CI 徽章在仓库推送到 GitHub 后生效（本仓库当前为本地仓库，工作流已就绪并通过 actionlint 校验）。
 
 ## 快速开始（干净环境）
 
@@ -80,7 +78,7 @@ docs/{plan,adr,research,screenshots}             .claude/             rules / ho
 | M1 骨架与数据    | ✅                                       | 0.65h / 5h    |
 | M2 商品目录      | ✅                                       | ≈0.5h / 5h    |
 | M3 交易闭环      | ✅                                       | ≈0.9h / 9h    |
-| M4 后台与验收    | ✅                                       | ≈1.6h / 5h    |
+| M4 后台与验收    | ✅                                       | ≈1.9h / 5h    |
 | M5 AI 导购（P1） | 未启动（门槛检查见 `AI_WORKFLOW.md` §4） | — / 6h        |
 
 明确不做：真实支付、多商户、对外 MCP、营销玩法、物流对接、推荐、图搜、i18n、移动端、游客购物车、公网部署（完整清单见 `docs/plan/01` §1.3）。
