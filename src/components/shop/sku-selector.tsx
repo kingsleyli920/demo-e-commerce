@@ -8,7 +8,7 @@ import { addToCartAction, buyNowAction, type AddToCartState } from '@/app/(shop)
 import { Button } from '@/components/ui/button';
 import { formatPrice } from '@/lib/format';
 import { availableOptions, isSpecComplete, priceRange } from '@/lib/sku';
-import { availableStock, stockHint } from '@/lib/stock';
+import { stockHint } from '@/lib/stock';
 import { cn } from '@/lib/utils';
 import type { ProductAttribute, SkuSpec } from '@/server/db/schema';
 
@@ -17,8 +17,8 @@ export type SkuData = {
   spec: SkuSpec;
   price: number;
   originalPrice: number | null;
-  stock: number;
-  lockedStock: number;
+  /** 可售库存（服务端已计算，最多下发 99） */
+  available: number;
   image: string | null;
   status: 'on' | 'off';
 };
@@ -52,7 +52,7 @@ export function SkuSelector({
     return sku ?? null;
   }, [complete, skus, attributes, selected]);
   const range = useMemo(() => priceRange(skus), [skus]);
-  const hint = current ? stockHint(availableStock(current)) : null;
+  const hint = current ? stockHint(current.available) : null;
   const maxQty = current ? Math.min(Math.max(hint!.available, 1), 99) : 99;
 
   useEffect(() => {

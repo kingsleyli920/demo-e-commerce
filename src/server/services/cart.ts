@@ -22,7 +22,8 @@ export async function getOrCreateCartId(userId: string, conn: DbOrTx = db): Prom
   return again.id;
 }
 
-export type AddToCartResult = { item: CartItem; clamped: boolean };
+export type ClampReason = 'stock' | 'limit' | null;
+export type AddToCartResult = { item: CartItem; clamped: boolean; clampReason: ClampReason };
 
 /**
  * 加购：同 SKU 合并；数量钳制到 min(可售, 99)；下架/售罄拒绝；条目上限 50（新 SKU）。
@@ -56,24 +57,27 @@ export async function addToCart(
     }
     const cap = Math.min(available, CART_MAX_QTY);
     const want = (existing?.quantity ?? 0) + quantity;
-    const finalQty = Math.min(want, cap);
-    const clamped = finalQty < want;
-    let item: CartItem;
-    if (existing) {
-      const [row] = await tx
-        .update(cartItems)
-        .set({ quantity: finalQty, selected: true })
-        .where(eq(cartItems.id, existing.id))
-        .returning();
-      item = row!;
-    } else {
-      const [row] = await tx
-        .insert(cartItems)
-        .values({ cartId, skuId, quantity: finalQty, priceAtAdd: sku.price, selected: true })
-        .returning();
-      item = row!;
-    }
-    return { item, clamped };
+    // 原子 upsert：并发加购同一 SKU 时由 (cart_id, sku_id) 唯一键合并，不丢增量、不抛唯一冲突
+    const [item] = await tx
+      .insert(cartItems)
+      .values({
+        cartId,
+        skuId,
+        quantity: Math.min(quantity, cap),
+        priceAtAdd: sku.price,
+        selected: true,
+      })
+      .onConflictDoUpdate({
+        target: [cartItems.cartId, cartItems.skuId],
+        set: {
+          quantity: sql`least(${cartItems.quantity} + ${quantity}, ${cap})`,
+          selected: sql`true`,
+        },
+      })
+      .returning();
+    const clamped = item!.quantity < want;
+    const clampReason: ClampReason = !clamped ? null : available < CART_MAX_QTY ? 'stock' : 'limit';
+    return { item: item!, clamped, clampReason };
   });
 }
 
@@ -161,14 +165,20 @@ export async function updateCartItemQuantity(
 ): Promise<AddToCartResult> {
   if (!Number.isInteger(quantity) || quantity < 1) throw new AppError('VALIDATION', '数量无效');
   const item = await findOwnItem(userId, itemId, conn);
-  const cap = Math.max(1, Math.min(availableStock(item.sku), CART_MAX_QTY));
+  const available = availableStock(item.sku);
+  const cap = Math.max(1, Math.min(available, CART_MAX_QTY));
   const finalQty = Math.min(quantity, cap);
   const [row] = await conn
     .update(cartItems)
     .set({ quantity: finalQty })
     .where(eq(cartItems.id, itemId))
     .returning();
-  return { item: row!, clamped: finalQty < quantity };
+  const clamped = finalQty < quantity;
+  return {
+    item: row!,
+    clamped,
+    clampReason: !clamped ? null : available < CART_MAX_QTY ? 'stock' : 'limit',
+  };
 }
 
 export async function removeCartItem(

@@ -21,12 +21,6 @@ export const searchQuerySchema = z.object({
     .max(50)
     .optional()
     .transform((v) => (v ? v : undefined)),
-  cat: z
-    .string()
-    .trim()
-    .max(50)
-    .optional()
-    .transform((v) => (v ? v : undefined)),
   min: z.coerce.number().min(0).max(10_000_000).optional().catch(undefined),
   max: z.coerce.number().min(0).max(10_000_000).optional().catch(undefined),
   sort: z.enum(PRODUCT_SORTS).catch('default'),

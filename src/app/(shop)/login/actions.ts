@@ -5,6 +5,7 @@ import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { z } from 'zod';
 import { DEMO_ACCOUNTS } from '@/lib/demo-accounts';
+import { safeNextPath } from '@/lib/safe-next';
 import { auth } from '@/server/auth/auth';
 
 export type LoginState = { error?: string; email?: string } | undefined;
@@ -14,12 +15,6 @@ const loginSchema = z.object({
   password: z.string().min(8, { error: '密码至少 8 位' }),
   next: z.string().optional(),
 });
-
-/** 只允许站内相对路径，防止开放重定向 */
-function safeNext(next: string | undefined | null): string {
-  if (!next || !next.startsWith('/') || next.startsWith('//')) return '/';
-  return next;
-}
 
 async function signIn(email: string, password: string): Promise<string | null> {
   try {
@@ -50,7 +45,7 @@ export async function loginAction(_prev: LoginState, formData: FormData): Promis
   }
   const err = await signIn(parsed.data.email, parsed.data.password);
   if (err) return { error: err, email };
-  redirect(safeNext(parsed.data.next));
+  redirect(safeNextPath(parsed.data.next));
 }
 
 export async function demoLoginAction(role: 'buyer' | 'admin', next?: string): Promise<void> {
@@ -61,7 +56,7 @@ export async function demoLoginAction(role: 'buyer' | 'admin', next?: string): P
       `/login?error=${encodeURIComponent(err)}${next ? `&next=${encodeURIComponent(next)}` : ''}`,
     );
   }
-  redirect(safeNext(next ?? (role === 'admin' ? '/admin' : '/')));
+  redirect(safeNextPath(next ?? (role === 'admin' ? '/admin' : '/')));
 }
 
 export async function logoutAction(): Promise<void> {

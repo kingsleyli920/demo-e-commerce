@@ -21,7 +21,13 @@ import {
 export default async function CategoryPage({ params, searchParams }: PageProps<'/c/[slug]'>) {
   const { slug } = await params;
   const sp = parseSearchQuery(await searchParams);
-  const category = await getCategoryBySlug(decodeURIComponent(slug));
+  let decodedSlug: string;
+  try {
+    decodedSlug = decodeURIComponent(slug);
+  } catch {
+    notFound();
+  }
+  const category = await getCategoryBySlug(decodedSlug);
   if (!category) notFound();
   const [result, crumbs, tree] = await Promise.all([
     searchProducts({

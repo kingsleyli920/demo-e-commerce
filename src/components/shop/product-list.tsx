@@ -100,28 +100,38 @@ function Pager({
       aria-label="分页"
       data-testid="pagination"
     >
-      <Button asChild variant="outline" size="sm" disabled={page <= 1}>
-        {page <= 1 ? (
-          <span aria-disabled>上一页</span>
-        ) : (
+      {page <= 1 ? (
+        <span
+          className="inline-flex h-8 items-center rounded-md border px-3 text-sm text-muted-foreground/50"
+          aria-disabled
+        >
+          上一页
+        </span>
+      ) : (
+        <Button asChild variant="outline" size="sm">
           <Link href={buildListHref(basePath, query, { page: page - 1 })} data-testid="page-prev">
             上一页
           </Link>
-        )}
-      </Button>
+        </Button>
+      )}
       <span className="text-sm text-muted-foreground" data-testid="page-info">
         第 {page} / {Math.max(totalPages, 1)} 页 · 共{' '}
         <span data-testid="total-count">{result.total}</span> 件
       </span>
-      <Button asChild variant="outline" size="sm" disabled={page >= totalPages}>
-        {page >= totalPages ? (
-          <span aria-disabled>下一页</span>
-        ) : (
+      {page >= totalPages ? (
+        <span
+          className="inline-flex h-8 items-center rounded-md border px-3 text-sm text-muted-foreground/50"
+          aria-disabled
+        >
+          下一页
+        </span>
+      ) : (
+        <Button asChild variant="outline" size="sm">
           <Link href={buildListHref(basePath, query, { page: page + 1 })} data-testid="page-next">
             下一页
           </Link>
-        )}
-      </Button>
+        </Button>
+      )}
     </nav>
   );
 }

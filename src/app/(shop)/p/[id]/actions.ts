@@ -11,9 +11,12 @@ export type AddToCartState =
   | { status: 'idle' }
   | { status: 'needLogin' }
   | { status: 'error'; message: string }
-  | { status: 'ok'; clamped: boolean; quantity: number };
+  | { status: 'ok'; clamped: boolean; clampReason: 'stock' | 'limit' | null; quantity: number };
 
-export async function addToCartAction(_prev: AddToCartState, formData: FormData): Promise<AddToCartState> {
+export async function addToCartAction(
+  _prev: AddToCartState,
+  formData: FormData,
+): Promise<AddToCartState> {
   const user = await getCurrentUser();
   if (!user) return { status: 'needLogin' };
   const parsed = addToCartSchema.safeParse({
@@ -22,9 +25,13 @@ export async function addToCartAction(_prev: AddToCartState, formData: FormData)
   });
   if (!parsed.success) return { status: 'error', message: '参数错误，请重新选择规格' };
   try {
-    const { item, clamped } = await addToCart(user.id, parsed.data.skuId, parsed.data.quantity);
+    const { item, clamped, clampReason } = await addToCart(
+      user.id,
+      parsed.data.skuId,
+      parsed.data.quantity,
+    );
     revalidatePath('/', 'layout');
-    return { status: 'ok', clamped, quantity: item.quantity };
+    return { status: 'ok', clamped, clampReason, quantity: item.quantity };
   } catch (e) {
     if (isAppError(e)) return { status: 'error', message: e.message };
     throw e;

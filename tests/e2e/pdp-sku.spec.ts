@@ -88,7 +88,7 @@ test.describe('P0-3 商品详情与 SKU', () => {
     await expect(page.getByTestId('qty-value')).toHaveText('2');
     await page.getByTestId('qty-minus').click();
     await expect(page.getByTestId('qty-value')).toHaveText('1');
-    await page.getByTestId('qty-minus').isDisabled();
+    await expect(page.getByTestId('qty-minus')).toBeDisabled();
     await page.getByTestId('add-to-cart').click();
     await expect(page.locator('[data-sonner-toast]')).toContainText('已加入购物车');
     await expect(page.getByTestId('header-cart-badge')).toHaveText(String(before + 1));

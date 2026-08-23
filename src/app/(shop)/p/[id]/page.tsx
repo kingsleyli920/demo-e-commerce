@@ -11,6 +11,7 @@ import {
 import { Separator } from '@/components/ui/separator';
 import { ProductGallery } from '@/components/shop/product-gallery';
 import { SkuSelector, type SkuData } from '@/components/shop/sku-selector';
+import { availableStock } from '@/lib/stock';
 import { getProductDetail } from '@/server/services/catalog';
 
 export default async function ProductPage({ params }: PageProps<'/p/[id]'>) {
@@ -25,8 +26,7 @@ export default async function ProductPage({ params }: PageProps<'/p/[id]'>) {
     spec: s.spec,
     price: s.price,
     originalPrice: s.originalPrice,
-    stock: s.stock,
-    lockedStock: s.lockedStock,
+    available: Math.min(availableStock(s), 99),
     image: s.image,
     status: s.status,
   }));

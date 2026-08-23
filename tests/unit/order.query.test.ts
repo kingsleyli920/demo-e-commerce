@@ -83,7 +83,7 @@ describe('P0-7 订单查询/操作', () => {
   });
 
   it('发货：仅 PAID 可发货；写 shipping 与 shipped_at', async () => {
-    const { u, mk } = await setup();
+    const { mk } = await setup();
     const o = await mk();
     await expect(shipOrder(o.orderNo, { carrier: 'X', trackingNo: '1' })).rejects.toThrowError(
       /状态|发货/,
@@ -97,6 +97,7 @@ describe('P0-7 订单查询/操作', () => {
 
   it('历史订单不受商品改价影响（快照）', async () => {
     const { u, mk, s } = await setup();
+    void u;
     const db = getTestDb();
     const o = await mk();
     const { skus: skuTable } = await import('@/server/db/schema');
@@ -108,7 +109,7 @@ describe('P0-7 订单查询/操作', () => {
   });
 
   it('越权：他人订单查询返回 null；他人取消/收货拒绝', async () => {
-    const { u, mk } = await setup();
+    const { mk } = await setup();
     const o = await mk();
     const u2 = await createUser();
     expect(await getOrderByNo(u2.id, o.orderNo)).toBeNull();
