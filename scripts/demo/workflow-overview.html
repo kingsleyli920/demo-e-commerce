@@ -1,0 +1,31 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><title>AI 协作留痕速览</title>
+<style>
+body{font-family:ui-sans-serif,system-ui,'PingFang SC',sans-serif;margin:0;background:#0b0f17;color:#e6e9ef;padding:32px}
+h1{font-size:22px;margin:0 0 6px} h2{font-size:15px;color:#8b93a7;margin:24px 0 10px;font-weight:600}
+.line{font:12px ui-monospace,Menlo,monospace;padding:2px 0;color:#c8d0e0;white-space:nowrap}
+.line:nth-child(odd){color:#93a3c0}
+table{border-collapse:collapse;font-size:13px} td,th{border:1px solid #26304a;padding:6px 12px;text-align:left}
+th{background:#141b2b;color:#9fb0d0} .ok{color:#4ade80;font-weight:700}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:32px;align-items:start}
+.note{color:#8b93a7;font-size:12px;margin-top:10px}
+</style></head><body>
+<h1>云集优选 · AI 电商 Demo — 协作留痕速览</h1>
+<div class="note">单一 dev 分支 · Conventional Commits + 里程碑 scope · service 层「先 test(红) 再 feat(绿)」 · 每条提交 Co-Authored-By: Claude</div>
+<div class="grid">
+<div><h2>git log --oneline（按时间正序）</h2><div class="line">951bfe0 docs: 收敛版规划（P0/P1/不做）、P0 验收与测试矩阵、IMPLEMENTATION_BRIEF 与 AI_WORKFLOW 模板</div><div class="line">57176dc chore(m1): Next 16 脚手架 + Tailwind v4/shadcn + 依赖 + Docker Postgres 16 + env 示例</div><div class="line">ec6d0f1 chore(m1): Claude Code 项目配置（CLAUDE.md、rules、hooks、code-reviewer subagent）</div><div class="line">54dd881 feat(m1): Drizzle schema（11 业务表 + Better Auth 4 表）与初始 migration、migrate/reset 脚本</div><div class="line">60f1bf0 feat(m1): seed 数据（28 类目 / 150 SPU / 640 SKU / 2 账号 / 4 地址 / 3 历史订单）与 db:seed 脚本</div><div class="line">db60f9e test(m1): 测试基础设施（Vitest 4 projects + 覆盖率阈值、Playwright 1.62 config）与 auth service 单测（红）</div><div class="line">07aaf8b feat(m1): Better Auth 邮箱密码登录 + 演示账号一键登录 + role 守卫 + proxy 302 + 403/404 页（绿）</div><div class="line">32bc753 feat(m1): 首页（类目入口 + 20 商品卡，从 DB 读）、站点头部（登录态/退出/购物车角标）、受保护页与后台占位</div><div class="line">a8b2f34 test(m1): auth E2E（setup 重置 seed + 买家/管理员登录保存会话；一键登录 / 受保护页 302+next / 退出 / 403 / 管理员进入后台）</div><div class="line">d6f9b74 ci(m1): GitHub Actions（services postgres:16 → install → lint → typecheck → migrate → unit(coverage) → build → e2e，上传报告）</div><div class="line">07fbd1a docs(m1): ADR-0001 范围收敛 / ADR-0002 技术栈 / ADR-0003 库存与订单规则；README 初版；AI_WORKFLOW M1 段</div><div class="line">9f95ea0 chore(m1): milestone 1 验收通过（unit 21/21 · e2e 10/10 · lint/typecheck/build 绿，耗时 0.65h/5h）</div><div class="line">a454e44 test(m2): catalog 搜索/类目/SKU/库存提示 + cart 加购 单测（红）</div><div class="line">5ffeba6 feat(m2): catalog service（搜索/分页/排序/详情/SKU 定位）+ cart.addToCart（绿）</div><div class="line">4082442 feat(m2): 搜索/类目列表页 + 商品详情页（图集 / SKU 选择器 / 库存提示 / 加购 / 立即购买）</div><div class="line">fec7409 test(m2): browse-search 与 pdp-sku E2E（14 条用例，覆盖 docs/plan/03 P0-2/P0-3 全部 e2e 行）</div><div class="line">ddf60c2 test(m3): 交易闭环全部单测（红）：地址/购物车完整/结算预览/下单/库存/并发不超卖/支付幂等/超时/状态机/订单查询</div><div class="line">f9d3384 feat(m3): 交易闭环 service 层（绿）：地址/购物车完整/结算/下单锁库存/Mock 支付/超时/订单状态机</div><div class="line">56a49e6 fix(m3): 独立审查修复（High 1 + Medium 2 + Low 6）</div><div class="line">f12dd09 chore(m2): milestone 2 验收通过（unit 40/40 · e2e 24/24 · lint/typecheck/build 绿，耗时 ≈0.5h/5h）【补录】</div><div class="line">900da2c feat(m3): 交易链路 UI：购物车 / 地址管理 / 结算 / 收银台 / 订单列表与详情</div><div class="line">72b0c68 test(m3): 交易闭环 E2E（cart-ops / checkout-pay / checkout-fail-retry / order-lifecycle / stock-guard，12 条）</div><div class="line">06e119e style(m3): prettier 格式化余量（无逻辑变更）</div><div class="line">61ce472 chore(m3): milestone 3 验收通过（unit 87/87 · e2e 36/36 · 并发不超卖/支付幂等/状态机绿，耗时 ≈0.9h/9h）</div><div class="line">7f10ee4 test(m4): admin service 单测（红）：上下架/SKU 编辑（库存≥locked）/发货约束/统计计算/列表筛选</div><div class="line">96b9860 feat(m4): admin service（绿）：统计卡（今日订单/已支付 GMV/待发货/售罄 SKU）、商品分页搜索与上下架、SKU 价格库存编辑（admin_adjust 日志 + min_price 派生）、订单列表/详情</div><div class="line">99ac871 feat(m4): 后台 UI：概览统计 + 处理超时订单、商品管理（搜索/上下架/SKU 行内编辑）、订单管理（状态筛选/详情/模拟发货）；每个页面与 Action 独立 requireAdmin</div><div class="line">f59926e test(m4): admin-flow / admin-guard / full-journey E2E（10 条）：后台 UI 改库存→前台仅剩 1 件、下架→前台 404、发货→前台待收货、统计与超时按钮、全链路冒烟</div><div class="line">740f263 test(m4): 覆盖率补测（safe-next / DTO 解析 / sku 纯函数 / getDefaultAddress / admin 详情 / 非法输入分支）——Stmts 96.5% · Branch 88.4% · Funcs 98.3% · Lines 97.6%</div></div>
+<div><h2>AI_WORKFLOW.md 总览</h2>
+<table><tr><th>里程碑</th><th>净耗时</th><th>预算</th><th>人工介入</th><th>测试</th><th>验收</th></tr>
+<tr><td>M1 骨架与数据</td><td>0.65h</td><td>5h</td><td>0</td><td>unit 21/21 · e2e 10/10</td><td class="ok">✓</td></tr>
+<tr><td>M2 商品目录</td><td>≈0.5h</td><td>5h</td><td>0</td><td>unit 40/40 · e2e 24/24</td><td class="ok">✓</td></tr>
+<tr><td>M3 交易闭环</td><td>≈0.9h</td><td>9h</td><td>0</td><td>unit 87/87 · e2e 36/36</td><td class="ok">✓</td></tr>
+<tr><td>M4 后台与验收</td><td>≈1.2h</td><td>5h</td><td>0</td><td>unit 103/103 · e2e 47/47</td><td class="ok">✓</td></tr>
+</table>
+<h2>质量闸</h2>
+<table>
+<tr><th>检查</th><th>结果</th></tr>
+<tr><td>覆盖率（services+lib+dto）</td><td>Stmts 96.5% · Branch 88.4% · Funcs 98.3% · Lines 97.6%</td></tr>
+<tr><td>并发不超卖</td><td>50 并发 → 恰 10 单成功，库存无负数</td></tr>
+<tr><td>支付幂等 / 状态机 / 超时释放</td><td class="ok">单测 + E2E 全绿</td></tr>
+<tr><td>独立代码审查</td><td>Critical 0 · High 1（已修复复验）</td></tr>
+</table>
+</div></div></body></html>
