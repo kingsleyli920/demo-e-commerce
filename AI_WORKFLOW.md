@@ -168,7 +168,55 @@ pnpm lint / typecheck / build → 绿
 
 ### M3 交易闭环
 
-<复制 M1 模板；并发不超卖测试的输出必须贴在「测试结果」>
+**目标与范围**：P0-4 库存（并发不超卖）+ P0-5 购物车 + P0-6 Mock Checkout（地址/结算/下单/支付/超时）+ P0-7 订单（BRIEF §8 M3 DoD）。
+**时间**：开始 2026-08-23 12:23 ｜ 结束 2026-08-23 12:50 ｜ 净耗时 ≈0.9h（含审查修复）｜ 预算 9h ｜ 偏差 −8.1h
+
+**关键 Prompt**
+| # | 时间 | Prompt（原话/忠实摘要） | 意图 | 结果评价 |
+|---|---|---|---|---|
+| 1 | 12:24 | （AI 自主）按 03 矩阵一次写全 9 个单测文件（地址/购物车/预览/下单/库存/并发/支付/超时/状态机/查询），再统一实现 service | TDD 批量红→绿 | 采纳；实现后 86/86 一次全绿（含 50 并发） |
+| 2 | 12:26 | （AI→子代理）重跑独立审查（M1+M2 已提交全量 diff） | 里程碑边界质量闸 | 产出 High 1 / Medium 2 / Low 8，全部当场修复（fix(m3) 56a49e6） |
+| 3 | 12:38 | （AI 自决）「后台操作」类 E2E 步骤（改库存/下架/发货）M3 用 db-helper/服务等价模拟，M4 admin-flow 用真实后台 UI 复测 | 后台 UI 属 M4，避免里程碑倒挂 | 采纳，已在测试注释与提交说明中声明 |
+
+**模型选择**：主线程 claude-fable-5；独立审查子代理 claude-fable-5（继承）。
+
+**实际使用的 Skills / Plugins / MCP**
+| 名称 | 用途 | 是否有效（1–5）与备注 |
+|---|---|---|
+| code-reviewer（general-purpose 子代理加载 .claude/agents/code-reviewer.md） | M1+M2 独立审查 | 5：抓到真 High（open redirect \\ 绕过）与 addToCart 并发丢增量、guard 正则误/漏拦 |
+| pg（tests/e2e/db-helper） | E2E 前置/清理直连库 | 4 |
+
+**人工决策**（AI 自决，记录备查）
+| 决策 | 备选 | 选择与理由 | 影响范围 |
+|---|---|---|---|
+| addToCart 并发 | 读-判-写 / FOR UPDATE / 原子 upsert | **onConflictDoUpdate + least()**：单语句原子合并，无锁等待 | cart service |
+| 支付单模型 | 每次尝试一行 / 单行覆盖 | **INIT 行复用 + 失败标记 FAILED、重试补建**：支付历史可追溯且幂等简单 | payments |
+| 超时实现 | 定时任务 / 惰性 + 手动 | **读取时惰性取消 + cron 端点 + 后台按钮**（按 BRIEF §6.6） | order service |
+| E2E 后台步骤 | 等 M4 / DB 模拟 | **M3 DB/服务模拟 + M4 UI 复测**（见关键 Prompt 3） | tests/e2e |
+| 状态机并发 | 读后写 / 条件更新 | **UPDATE … WHERE status = 原状态**，0 行 → CONFLICT | order service |
+
+**失败与恢复**
+| 现象 | 根因 | 恢复方式 | 损失时长 | 预防措施 |
+|---|---|---|---|---|
+| 审查发现 open redirect 可用 /\\host 绕过（High） | 只挡了 //，未挡反斜杠变体 | 统一 safeNextPath（拒绝 // 与含 \\ 路径），三处调用点收敛 | 5 分钟 | 写入 lib + 单点复用 |
+| 审查发现 addToCart 并发丢增量/唯一冲突 500（Medium） | read committed 下读-判-写交错 | 改 onConflictDoUpdate 原子 upsert；新增 clampReason | 8 分钟 | 记入 server.md 意识（并发写用原子语句） |
+| 审查发现 guard-bash 误拦 rm -f error.log、漏拦 rm -rf a b 复合命令（Medium） | 单正则整串匹配 | 重写为分段解析 + rm flags/目标白名单校验，17 条回归用例验证 | 10 分钟 | 守卫脚本自带回归清单 |
+| lint 报 react-hooks/set-state-in-effect（address 弹窗） | useActionState+useEffect 关闭弹窗模式触发 React 19 规则 | 改为直接 await server action + startTransition 回调里收尾 | 5 分钟 | 记入 ui.md 思路 |
+
+**人工介入统计**：纠偏 0 ｜ 否决 0 ｜ 补充信息 0 ｜ 手工修改 0 ｜ 环境处理 0 ｜ **合计 0**
+
+**测试结果**
+```text
+pnpm test:unit  → 87/87（18 文件）
+  覆盖率（services+lib+dto）：Stmts 89.7% · Branch 81.0% · Funcs 88.8% · Lines 92.0%（阈值 80/70/80/80）
+pnpm test:e2e   → 36/36（setup 3 + auth 7 + browse-search 8 + pdp-sku 6 + cart-ops 5 + checkout-pay 1 + checkout-fail-retry 1 + order-lifecycle 3 + stock-guard 2）
+并发不超卖输出：50 并发 → fulfilled 10 / rejected 40（全部「库存不足」）→ stock=10, locked=10 → 全部支付后 stock=0, locked=0；lock 日志 10 条、deduct 10 条
+pnpm lint / typecheck / build → 绿
+```
+
+**验收**：docs/plan/03 P0-4（5 条）/ P0-5（7 条）/ P0-6（8 条）/ P0-7（6 条）全部 ☑（其中「后台改库存/发货」的 UI 路径在 M4 admin-flow 复测）
+**超预算规则是否触发**：否
+**提交范围**：`ddf60c2..chore(m3)`（test 红 → service 绿 → 审查修复 → UI → e2e）
 
 ### M4 后台与验收
 
