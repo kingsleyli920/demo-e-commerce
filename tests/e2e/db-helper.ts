@@ -17,6 +17,12 @@ async function withClient<T>(fn: (c: Client) => Promise<T>): Promise<T> {
   }
 }
 
+export async function setProductStatus(productId: number, status: 'on' | 'off'): Promise<void> {
+  await withClient((c) =>
+    c.query('UPDATE products SET status = $1 WHERE id = $2', [status, productId]),
+  );
+}
+
 export async function setSkuStatus(skuId: number, status: 'on' | 'off'): Promise<void> {
   await withClient((c) => c.query('UPDATE skus SET status = $1 WHERE id = $2', [status, skuId]));
 }

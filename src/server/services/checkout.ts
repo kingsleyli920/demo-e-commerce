@@ -16,7 +16,7 @@ import {
 } from '@/server/db/schema';
 import { AppError } from '@/server/errors';
 import { getAddress, listAddresses } from './address';
-import { getOrCreateCartId, listCart } from './cart';
+import { getOrCreateCartId } from './cart';
 
 export type CheckoutSource = { type: 'cart' } | { type: 'buyNow'; skuId: number; quantity: number };
 
@@ -52,7 +52,6 @@ export async function getCheckoutItems(
   conn: DbOrTx = db,
 ): Promise<CheckoutItem[]> {
   if (source.type === 'cart') {
-    const view = await listCart(userId, conn);
     const rows = await conn.query.cartItems.findMany({
       where: and(
         eq(cartItems.cartId, await getOrCreateCartId(userId, conn)),
@@ -64,7 +63,6 @@ export async function getCheckoutItems(
     if (invalidSelected.length > 0) {
       throw new AppError('VALIDATION', '结算商品中含已失效条目，请回购物车处理');
     }
-    void view;
     if (rows.length === 0) throw new AppError('VALIDATION', '没有可结算的商品，请先在购物车勾选');
     return rows.map((r) => ({
       cartItemId: r.id,
@@ -149,6 +147,8 @@ export async function placeOrder(
     const address = await getAddress(userId, input.addressId, tx);
     if (!address) throw new AppError('VALIDATION', '收货地址无效，请重新选择地址');
     const items = await getCheckoutItems(userId, input.source, tx);
+    // 固定按 skuId 升序加锁，避免并发订单以相反顺序锁行导致死锁
+    items.sort((a, b) => a.skuId - b.skuId);
 
     // 逐 SKU 条件原子锁定
     for (const item of items) {

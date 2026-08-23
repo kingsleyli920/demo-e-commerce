@@ -146,14 +146,19 @@ export async function updateSku(
   return conn.transaction(async (tx) => {
     const sku = await tx.query.skus.findFirst({ where: eq(skus.id, skuId) });
     if (!sku) throw new AppError('NOT_FOUND', 'SKU 不存在');
-    if (input.stock < sku.lockedStock) {
-      throw new AppError('VALIDATION', `库存不能小于已锁定数量（当前锁定 ${sku.lockedStock}）`);
-    }
+    // 条件更新：并发下单抬高 locked_stock 时不靠 DB check 约束裸报错
     const [row] = await tx
       .update(skus)
       .set({ price: input.price, originalPrice: input.originalPrice, stock: input.stock })
-      .where(eq(skus.id, skuId))
+      .where(and(eq(skus.id, skuId), lte(skus.lockedStock, input.stock)))
       .returning();
+    if (!row) {
+      const fresh = await tx.query.skus.findFirst({ where: eq(skus.id, skuId) });
+      throw new AppError(
+        'VALIDATION',
+        `库存不能小于已锁定数量（当前锁定 ${fresh?.lockedStock ?? sku.lockedStock}）`,
+      );
+    }
     if (input.stock !== sku.stock) {
       await tx.insert(inventoryLogs).values({
         skuId,

@@ -11,6 +11,12 @@ import { AddressFormDialog } from './address-form';
 
 export function AddressList({ addresses }: { addresses: Address[] }) {
   const [, startTransition] = useTransition();
+  const run = (fn: () => Promise<{ ok: boolean; message?: string }>) =>
+    startTransition(async () => {
+      const r = await fn();
+      if (r.ok) toast.success(r.message ?? '操作成功');
+      else toast.error(r.message ?? '操作失败');
+    });
 
   return (
     <div className="grid gap-4 sm:grid-cols-2" data-testid="address-list">
@@ -39,12 +45,7 @@ export function AddressList({ addresses }: { addresses: Address[] }) {
                   variant="outline"
                   size="sm"
                   data-testid="address-set-default"
-                  onClick={() =>
-                    startTransition(async () => {
-                      await setDefaultAddressAction(a.id);
-                      toast.success('已设为默认地址');
-                    })
-                  }
+                  onClick={() => run(() => setDefaultAddressAction(a.id))}
                 >
                   设为默认
                 </Button>
@@ -54,12 +55,7 @@ export function AddressList({ addresses }: { addresses: Address[] }) {
                 size="sm"
                 className="text-destructive"
                 data-testid="address-delete"
-                onClick={() =>
-                  startTransition(async () => {
-                    await deleteAddressAction(a.id);
-                    toast.success('地址已删除');
-                  })
-                }
+                onClick={() => run(() => deleteAddressAction(a.id))}
               >
                 删除
               </Button>

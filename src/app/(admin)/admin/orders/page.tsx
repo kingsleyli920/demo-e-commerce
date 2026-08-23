@@ -102,8 +102,29 @@ export default async function AdminOrdersPage({ searchParams }: PageProps<'/admi
         </Table>
       </div>
       {totalPages > 1 ? (
-        <div className="flex justify-center gap-2 text-sm text-muted-foreground">
-          第 {page} / {totalPages} 页
+        <div className="flex justify-center gap-2">
+          {page > 1 ? (
+            <Button asChild variant="outline" size="sm">
+              <Link
+                href={`/admin/orders?${new URLSearchParams({ ...(status ? { status } : {}), page: String(page - 1) })}`}
+              >
+                上一页
+              </Link>
+            </Button>
+          ) : null}
+          <span className="self-center text-sm text-muted-foreground">
+            第 {page} / {totalPages} 页
+          </span>
+          {page < totalPages ? (
+            <Button asChild variant="outline" size="sm">
+              <Link
+                href={`/admin/orders?${new URLSearchParams({ ...(status ? { status } : {}), page: String(page + 1) })}`}
+                data-testid="admin-order-next"
+              >
+                下一页
+              </Link>
+            </Button>
+          ) : null}
         </div>
       ) : null}
     </div>

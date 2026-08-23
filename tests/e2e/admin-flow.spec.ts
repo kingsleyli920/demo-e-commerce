@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 import { STORAGE_STATE } from '../../playwright.config';
-import { setSkuStock, setSkuStatus, getSkuRow } from './db-helper';
+import { setProductStatus, setSkuStatus, setSkuStock } from './db-helper';
 
 // seed 固定：1101 小厨星煎锅 尺寸×规格；SKU 11011（24cm×单锅，库存 200）
 // 1016 AirPods 第二代 有线充电盒版×耳机+硅胶保护套（10162，库存 45，¥889）用于发货流程
@@ -10,9 +10,10 @@ test.describe.configure({ mode: 'serial' });
 
 test.describe('P0-8 后台流程（管理员 UI 操作 → 前台生效）', () => {
   test.afterAll(async () => {
-    // 恢复 fixture
+    // 恢复 fixture（含「下架」用例中途失败的情况）
     await setSkuStock(11011, 200);
     await setSkuStatus(11011, 'on');
+    await setProductStatus(1101, 'on');
   });
 
   test('买家先创建一笔已支付订单', async ({ page }) => {

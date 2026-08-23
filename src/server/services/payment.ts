@@ -26,17 +26,23 @@ export async function mockPayCallback(
   input: MockPayInput,
   conn: DbOrTx = db,
 ): Promise<MockPayResult> {
-  return conn.transaction(async (tx) => {
-    let order = await tx.query.orders.findFirst({ where: eq(orders.orderNo, input.orderNo) });
-    if (!order) throw new AppError('NOT_FOUND', '订单不存在');
-    // 惰性过期（支付页回调时已过期 → 取消并拒绝）
-    order = await expireOrderIfNeeded(order, tx);
+  // 惰性过期放在主事务之外：过期取消需要独立提交，不能随「订单已取消」拒绝一起回滚
+  const preread = await conn.query.orders.findFirst({ where: eq(orders.orderNo, input.orderNo) });
+  if (!preread) throw new AppError('NOT_FOUND', '订单不存在');
+  await expireOrderIfNeeded(preread, conn);
 
-    // 幂等：同 transactionNo
+  return conn.transaction(async (tx) => {
+    const order = await tx.query.orders.findFirst({ where: eq(orders.orderNo, input.orderNo) });
+    if (!order) throw new AppError('NOT_FOUND', '订单不存在');
+
+    // 幂等：同 transactionNo（payments.transaction_no 全局唯一，按 transactionNo 查而非仅本订单）
     const dupe = await tx.query.payments.findFirst({
-      where: and(eq(payments.orderId, order.id), eq(payments.transactionNo, input.transactionNo)),
+      where: eq(payments.transactionNo, input.transactionNo),
     });
     if (dupe) {
+      if (dupe.orderId !== order.id) {
+        throw new AppError('CONFLICT', '交易号已被其它订单使用', { status: 400 });
+      }
       return {
         order,
         status: dupe.status === 'SUCCESS' ? ('SUCCESS' as const) : ('FAILED' as const),
@@ -92,6 +98,8 @@ export async function mockPayCallback(
         paidAt,
       });
     }
+    // 并发双成功回调：后到者在此条件更新失败 → 409（事务整体回滚，无重复扣减）；
+    // 客户端重试会命中前面的「已 PAID 幂等」分支返回成功。
     const paid = await transitionOrder(tx, order, 'PAID');
     const items = await tx.select().from(orderItems).where(eq(orderItems.orderId, order.id));
     for (const item of items) {

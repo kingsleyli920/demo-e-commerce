@@ -57,6 +57,7 @@ pnpm dev                            # http://localhost:3000
 - **库存**：`stock`（实物）/`locked_stock`（下单锁定）分离，可售 = 差值；下单用条件原子 UPDATE 锁定（并发不超卖有 50 并发单测与 E2E 护栏）；支付扣减、取消/超时释放，全程 `inventory_logs` 流水。
 - **订单状态机**：`PENDING_PAYMENT → PAID → SHIPPED → COMPLETED`，`PENDING_PAYMENT → CANCELLED`（手动/15 分钟超时惰性取消 + `POST /api/cron/expire-orders` + 后台按钮）；Mock 支付回调幂等。
 - **购物车角标口径**：**有效条目（SKU 上架且可售 > 0）的数量之和**（下架/售罄条目不计入）。
+- **Mock 支付回调**：`POST /api/pay/mock` 要求登录且只能操作本人订单（演示用回调，无真实网关签名）。
 - **鉴权**：Better Auth 邮箱密码；`/cart /checkout /orders /account/*` 需登录（proxy 302 + 页面级守卫），`/admin/*` 需管理员（403）；订单/地址仅本人可见（他人 404）。
 - **测试分层**：服务层单测（103 条，直连测试库）→ 组件测试（jsdom）→ E2E（47 条，真实浏览器 + 完整 seed）→ 录屏冒烟；矩阵详见 `docs/plan/03`，结果见 `TEST_REPORT.md`。
 

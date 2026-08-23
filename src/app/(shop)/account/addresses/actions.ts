@@ -47,14 +47,26 @@ export async function saveAddressAction(
   return { done: true };
 }
 
-export async function deleteAddressAction(id: number): Promise<void> {
+export type AddressActionResult = { ok: boolean; message?: string };
+
+export async function deleteAddressAction(id: number): Promise<AddressActionResult> {
   const user = await requireUser('/account/addresses');
-  await deleteAddress(user.id, id);
+  try {
+    await deleteAddress(user.id, id);
+  } catch (e) {
+    return { ok: false, message: isAppError(e) ? e.message : toUserMessage(e) };
+  }
   revalidatePath('/account/addresses');
+  return { ok: true, message: '地址已删除' };
 }
 
-export async function setDefaultAddressAction(id: number): Promise<void> {
+export async function setDefaultAddressAction(id: number): Promise<AddressActionResult> {
   const user = await requireUser('/account/addresses');
-  await setDefaultAddress(user.id, id);
+  try {
+    await setDefaultAddress(user.id, id);
+  } catch (e) {
+    return { ok: false, message: isAppError(e) ? e.message : toUserMessage(e) };
+  }
   revalidatePath('/account/addresses');
+  return { ok: true, message: '已设为默认地址' };
 }
