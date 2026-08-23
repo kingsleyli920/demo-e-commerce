@@ -1,6 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { ORDER_NO_PATTERN } from '@/lib/order-no';
-import { inventoryLogs, orders, payments } from '@/server/db/schema';
 import { addToCart, listCart, setItemSelected } from '@/server/services/cart';
 import { placeOrder } from '@/server/services/checkout';
 import { resetDb, getTestDb } from '../db';

@@ -1,4 +1,4 @@
-import { and, asc, count, desc, eq, lt, sql } from 'drizzle-orm';
+import { and, asc, count, eq, lt, sql } from 'drizzle-orm';
 import { db, type DbOrTx, type Tx } from '@/server/db/client';
 import {
   inventoryLogs,

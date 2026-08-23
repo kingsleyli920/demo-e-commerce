@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { FREE_SHIPPING_THRESHOLD, FREIGHT_FEE } from '@/lib/freight';
-import { addToCart, setItemSelected, listCart } from '@/server/services/cart';
+import { addToCart, setItemSelected } from '@/server/services/cart';
 import { previewCheckout } from '@/server/services/checkout';
 import { resetDb, getTestDb } from '../db';
 import { createAddress, createProductWithSkus, createUser } from '../factories';

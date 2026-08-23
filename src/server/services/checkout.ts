@@ -15,7 +15,7 @@ import {
   type SkuSpec,
 } from '@/server/db/schema';
 import { AppError } from '@/server/errors';
-import { getAddress, getDefaultAddress, listAddresses } from './address';
+import { getAddress, listAddresses } from './address';
 import { getOrCreateCartId, listCart } from './cart';
 
 export type CheckoutSource = { type: 'cart' } | { type: 'buyNow'; skuId: number; quantity: number };
@@ -219,16 +219,14 @@ export async function placeOrder(
     await tx
       .insert(payments)
       .values({ orderId: order.id, method: 'mock', amount: payAmount, status: 'INIT' });
-    await tx
-      .insert(inventoryLogs)
-      .values(
-        items.map((i) => ({
-          skuId: i.skuId,
-          change: i.quantity,
-          type: 'lock' as const,
-          refOrderId: order!.id,
-        })),
-      );
+    await tx.insert(inventoryLogs).values(
+      items.map((i) => ({
+        skuId: i.skuId,
+        change: i.quantity,
+        type: 'lock' as const,
+        refOrderId: order!.id,
+      })),
+    );
 
     // 购物车来源：移除本次结算的条目
     const cartItemIds = items.map((i) => i.cartItemId).filter((x): x is number => x !== null);

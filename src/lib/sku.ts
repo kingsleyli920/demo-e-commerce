@@ -30,7 +30,9 @@ export function isSpecComplete(attributes: ProductAttribute[], selected: SkuSpec
 }
 
 /** 价格区间（全部上架 SKU）：[min, max]；无上架 SKU → null */
-export function priceRange(skuList: { price: number; status: 'on' | 'off' }[]): [number, number] | null {
+export function priceRange(
+  skuList: { price: number; status: 'on' | 'off' }[],
+): [number, number] | null {
   const on = skuList.filter((s) => s.status === 'on').map((s) => s.price);
   if (on.length === 0) return null;
   return [Math.min(...on), Math.max(...on)];
