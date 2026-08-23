@@ -52,7 +52,7 @@ test.describe('P0-7 订单生命周期', () => {
   });
 
   test('商品改价后旧订单金额不变（快照）', async ({ page }) => {
-    const orderNo = await buyNow(page);
+    await buyNow(page);
     await page.getByTestId('pay-success').click();
     await expect(page.getByTestId('order-detail-pay-amount')).toHaveText('¥1,049.00');
     const { price } = await getSkuRow(10163);
