@@ -1,0 +1,16 @@
+node_modules
+.next
+out
+coverage
+playwright-report
+test-results
+blob-report
+drizzle/meta
+pnpm-lock.yaml
+public
+AGENTS.md
+# 基线文档（main 上的规划/调研文档）不重排
+IMPLEMENTATION_BRIEF.md
+docs/plan
+docs/research
+docs/README.md

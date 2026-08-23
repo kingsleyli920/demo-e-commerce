@@ -1,0 +1,21 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: demo-e-commerce-postgres
+    ports:
+      # 宿主机默认 5433（避开本机常见的 5432 本地 Postgres），可用 POSTGRES_PORT 覆盖
+      - '${POSTGRES_PORT:-5433}:5432'
+    environment:
+      POSTGRES_USER: shop
+      POSTGRES_PASSWORD: shop
+      POSTGRES_DB: shop
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./scripts/db/init-test-db.sql:/docker-entrypoint-initdb.d/10-init-test-db.sql:ro
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U shop -d shop']
+      interval: 3s
+      timeout: 3s
+      retries: 20
+volumes:
+  pgdata: {}
