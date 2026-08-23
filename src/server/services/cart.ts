@@ -77,6 +77,146 @@ export async function addToCart(
   });
 }
 
+export type CartLine = {
+  id: number;
+  skuId: number;
+  productId: number;
+  title: string;
+  image: string | null;
+  spec: Record<string, string>;
+  price: number;
+  priceAtAdd: number;
+  priceChanged: boolean;
+  quantity: number;
+  selected: boolean;
+  available: number;
+  invalidReason: 'off' | 'soldout' | null;
+};
+
+export type CartView = {
+  items: CartLine[];
+  invalidItems: CartLine[];
+  totalAmount: number;
+  selectedCount: number;
+  allSelected: boolean;
+};
+
+/** 购物车视图：有效/失效分区；合计只统计已勾选有效项（实时价） */
+export async function listCart(userId: string, conn: DbOrTx = db): Promise<CartView> {
+  const cartId = await getOrCreateCartId(userId, conn);
+  const rows = await conn.query.cartItems.findMany({
+    where: eq(cartItems.cartId, cartId),
+    with: { sku: { with: { product: true } } },
+    orderBy: (t, { desc: d }) => [d(t.createdAt), d(t.id)],
+  });
+  const lines: CartLine[] = rows.map((r) => {
+    const available = availableStock(r.sku);
+    const invalidReason =
+      r.sku.status !== 'on' ? ('off' as const) : available <= 0 ? ('soldout' as const) : null;
+    return {
+      id: r.id,
+      skuId: r.skuId,
+      productId: r.sku.productId,
+      title: r.sku.product.title,
+      image: r.sku.image ?? r.sku.product.images[0] ?? null,
+      spec: r.sku.spec,
+      price: r.sku.price,
+      priceAtAdd: r.priceAtAdd,
+      priceChanged: r.sku.price !== r.priceAtAdd,
+      quantity: r.quantity,
+      selected: r.selected,
+      available,
+      invalidReason,
+    };
+  });
+  const items = lines.filter((l) => l.invalidReason === null);
+  const invalidItems = lines.filter((l) => l.invalidReason !== null);
+  const selectedValid = items.filter((l) => l.selected);
+  return {
+    items,
+    invalidItems,
+    totalAmount: selectedValid.reduce((sum, l) => sum + l.price * l.quantity, 0),
+    selectedCount: selectedValid.length,
+    allSelected: items.length > 0 && selectedValid.length === items.length,
+  };
+}
+
+async function findOwnItem(userId: string, itemId: number, conn: DbOrTx) {
+  const row = await conn.query.cartItems.findMany({
+    where: eq(cartItems.id, itemId),
+    with: { cart: true, sku: true },
+    limit: 1,
+  });
+  const item = row[0];
+  if (!item || item.cart.userId !== userId) throw new AppError('NOT_FOUND', '购物车条目不存在');
+  return item;
+}
+
+/** 修改数量：钳制 1..min(可售, 99) */
+export async function updateCartItemQuantity(
+  userId: string,
+  itemId: number,
+  quantity: number,
+  conn: DbOrTx = db,
+): Promise<AddToCartResult> {
+  if (!Number.isInteger(quantity) || quantity < 1) throw new AppError('VALIDATION', '数量无效');
+  const item = await findOwnItem(userId, itemId, conn);
+  const cap = Math.max(1, Math.min(availableStock(item.sku), CART_MAX_QTY));
+  const finalQty = Math.min(quantity, cap);
+  const [row] = await conn
+    .update(cartItems)
+    .set({ quantity: finalQty })
+    .where(eq(cartItems.id, itemId))
+    .returning();
+  return { item: row!, clamped: finalQty < quantity };
+}
+
+export async function removeCartItem(
+  userId: string,
+  itemId: number,
+  conn: DbOrTx = db,
+): Promise<void> {
+  await findOwnItem(userId, itemId, conn);
+  await conn.delete(cartItems).where(eq(cartItems.id, itemId));
+}
+
+/** 勾选/取消勾选；失效项不可勾选 */
+export async function setItemSelected(
+  userId: string,
+  itemId: number,
+  selected: boolean,
+  conn: DbOrTx = db,
+): Promise<void> {
+  const item = await findOwnItem(userId, itemId, conn);
+  if (selected) {
+    const invalid = item.sku.status !== 'on' || availableStock(item.sku) <= 0;
+    if (invalid) throw new AppError('VALIDATION', '该条目已失效，不能勾选');
+  }
+  await conn.update(cartItems).set({ selected }).where(eq(cartItems.id, itemId));
+}
+
+/** 全选/取消全选（只影响有效项的勾选状态；取消全选影响全部） */
+export async function setAllSelected(
+  userId: string,
+  selected: boolean,
+  conn: DbOrTx = db,
+): Promise<void> {
+  const cartId = await getOrCreateCartId(userId, conn);
+  if (!selected) {
+    await conn.update(cartItems).set({ selected: false }).where(eq(cartItems.cartId, cartId));
+    return;
+  }
+  await conn
+    .update(cartItems)
+    .set({ selected: true })
+    .where(
+      and(
+        eq(cartItems.cartId, cartId),
+        sql`${cartItems.skuId} IN (select ${skus.id} from ${skus} where ${skus.status} = 'on' and ${skus.stock} - ${skus.lockedStock} > 0)`,
+      ),
+    );
+}
+
 /** 头部角标 = 有效条目（SKU 上架且可售 > 0）的数量之和 */
 export async function getCartBadgeCount(userId: string, conn: DbOrTx = db): Promise<number> {
   const [row] = await conn
