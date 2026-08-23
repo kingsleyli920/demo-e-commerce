@@ -123,7 +123,48 @@ CI              → .github/workflows/ci.yml 已写并通过 actionlint；仓库
 
 ### M2 商品目录
 
-<复制 M1 模板>
+**目标与范围**：P0-2 搜索/类目/筛选/排序/分页 + P0-3 详情/SKU 选择/库存提示/加购/立即购买（BRIEF §8 M2 DoD）。
+**时间**：开始 2026-08-23 01:26 ｜ 结束 2026-08-23 12:23（其间 01:35–12:16 因 Claude 会话限额暂停，不计耗时）｜ 净耗时 ≈0.5h ｜ 预算 5h ｜ 偏差 −4.5h
+
+**关键 Prompt**
+| # | 时间 | Prompt（原话/忠实摘要） | 意图 | 结果评价 |
+|---|---|---|---|---|
+| 1 | 01:26 | （AI 自主，按 03 测试矩阵）先写 catalog.search/category/sku/stockHint + cart 加购全部单测（红），再实现 service | TDD | 采纳；17+8 条单测一次成形 |
+| 2 | 12:16 | 用户「继续」（会话限额恢复后） | 恢复执行 | 继续 M2 |
+| 3 | 12:18 | （AI 自决）把 availableOptions/priceRange/stockHint 等纯函数抽到 src/lib，service re-export | 客户端组件复用且不打包 pg | 采纳 |
+
+**模型选择**：主线程 claude-fable-5（同 M1，无子代理）。
+
+**实际使用的 Skills / Plugins / MCP**：无新增（沿用 M1 基础设施）。
+
+**人工决策**
+| 决策 | 备选 | 选择与理由 | 影响范围 |
+|---|---|---|---|
+| E2E 固定商品 fixture | 每次动态查找 / 固定 seed id | **固定 id（1019/1093 等）+ 注释**：seed 数据已提交进仓库、确定性强，测试更稳更快 | tests/e2e |
+| 搜索价格区间 min>max | 报错 / 自动交换 | **自动交换**（宽容输入） | catalog.searchProducts |
+
+**失败与恢复**
+| 现象 | 根因 | 恢复方式 | 损失时长 | 预防措施 |
+|---|---|---|---|---|
+| 子代理 code-reviewer 首跑中断 | Claude 会话限额（resets 3:50am） | 主线程按清单自查后继续；M2/M3 合并重跑独立审查（见下） | ~0 | 审查安排在里程碑边界、避开限额高峰 |
+| 主会话 01:35–12:16 暂停 | 同上（会话限额） | 恢复后从失败测试现场继续 | 挂钟 10.7h，净损失 0 | — |
+| catalog.search 一条用例断言写错（min/max 反转区间预期含 99 元商品） | 测试预期笔误（99 不在 [100,300]） | 修正预期为 259 元商品 | 2 分钟 | — |
+| `next build` 因 e2e 文件 readonly storageState 类型报错 | `as const` 过窄 | 显式 `{ cookies: never[]; origins: never[] }` | 1 分钟 | — |
+| **流程疏漏：M2 通过后未提交 `chore(m2)` 直接进入 M3** | 里程碑收尾清单执行不严 | 补录 `chore(m2)`（本提交），并在此如实记录 | — | chore(mN) 加入里程碑收尾自查清单 |
+
+**人工介入统计**：纠偏 0 ｜ 否决 0 ｜ 补充信息 0 ｜ 手工修改 0 ｜ 环境处理 0 ｜ **合计 0**（「继续」为恢复指令，不计介入）
+
+**测试结果**
+```text
+pnpm test:unit  → 40/40（M2 时点；catalog.search 7 / category 2 / sku 3 / stockHint 2 / cart 8 …）
+pnpm test:e2e   → 24/24（auth 10 + browse-search 8 + pdp-sku 6）
+pnpm lint / typecheck / build → 绿
+覆盖率（services+lib+dto）：Stmts 88.5% · Branch 84.1% · Funcs 80.4% · Lines 91.4%
+```
+
+**验收**：docs/plan/03 P0-2 全部 7 条验收项 ☑；P0-3 全部 6 条 ☑（逐条对照 e2e/单测）
+**超预算规则是否触发**：否
+**提交范围**：`a454e44..fec7409`（test 红 → service 绿 → UI → e2e）+ 补录验收提交
 
 ### M3 交易闭环
 
