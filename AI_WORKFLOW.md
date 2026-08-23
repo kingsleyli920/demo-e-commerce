@@ -119,7 +119,7 @@ CI              → .github/workflows/ci.yml 已写并通过 actionlint；仓库
 
 **验收**：BRIEF §8 M1 DoD：`docker compose up -d && pnpm db:migrate && pnpm db:seed && pnpm dev` 可跑 ☑ ｜ `/` 从 DB 渲染 20 商品卡 + 类目入口 ☑ ｜ 登录/登出（表单 + 一键演示）☑ ｜ CI 骨架（lint/typecheck/unit/build/e2e）☑（本地等价执行）｜ CLAUDE.md/rules/hooks/code-reviewer ☑ ｜ ADR×3 ☑ ｜ `docs/plan/03` P0-1 账号 4 条验收项 ☑（受保护页 302、`/admin` 403、密码由 Better Auth scrypt 哈希、README 有账号）
 **超预算规则是否触发**：否（0.65h / 5h）
-**提交范围**：见 `git log --oneline` M1 段（`chore(m1)` 提交后回填）
+**提交范围**：`57176dc..chore(m1)`（脚手架 → Claude 配置 → schema → seed → test 红 → auth 绿 → 首页/占位 → auth E2E → CI → docs → 验收）
 
 ### M2 商品目录
 
