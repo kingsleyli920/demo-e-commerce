@@ -4,13 +4,13 @@
 
 ## 测试基础设施（P0-9 前置）
 
-| 项                                       | 状态                            | 证据                                                                                                                        |
-| ---------------------------------------- | ------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
-| 测试库 `shop_test`，test:unit 前自动迁移 | ✅                              | `tests/global-setup.ts`（drizzle migrate）；docker 初始化脚本自动建库                                                       |
-| 数据工厂                                 | ✅                              | `tests/factories.ts`：createUser / createCategory / createProductWithSkus / createAddress（下单场景由 placeOrder 直接覆盖） |
-| 脚本齐全                                 | ✅                              | package.json：test:unit / test:e2e / test / lint / typecheck                                                                |
-| CI 工作流                                | ✅（未实跑，见 TEST_REPORT §6） | `.github/workflows/ci.yml`：postgres:16 service → install → lint → typecheck → migrate → unit(coverage) → build → e2e       |
-| service 层覆盖 ≥ 80%                     | ✅ Stmts 96.5%                  | coverage-summary（TEST_REPORT §2）                                                                                          |
+| 项                                       | 状态                       | 证据                                                                                                                                                    |
+| ---------------------------------------- | -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 测试库 `shop_test`，test:unit 前自动迁移 | ✅                         | `tests/global-setup.ts`（drizzle migrate）；docker 初始化脚本自动建库                                                                                   |
+| 数据工厂                                 | ✅                         | `tests/factories.ts`：createUser / createCategory / createProductWithSkus / createAddress（下单场景由 placeOrder 直接覆盖）                             |
+| 脚本齐全                                 | ✅                         | package.json：test:unit / test:e2e / test / lint / typecheck                                                                                            |
+| CI 工作流                                | ✅ GitHub Actions 实跑全绿 | `.github/workflows/ci.yml`：postgres:16 service → install → lint → typecheck → migrate → unit(coverage) → build → e2e；dev push 与 PR #1 检查均 success |
+| service 层覆盖 ≥ 80%                     | ✅ Stmts 96.5%             | coverage-summary（TEST_REPORT §2）                                                                                                                      |
 
 ## P0-1 账号
 
@@ -102,20 +102,20 @@
 
 ## P0-9 完整测试 + CI
 
-| #   | 验收项                                   | 状态                                         | 证据                                                      |
-| --- | ---------------------------------------- | -------------------------------------------- | --------------------------------------------------------- |
-| 1   | pnpm test 一键通过；unit <60s；e2e <5min | ✅                                           | TEST_REPORT §1/§5（13s / 32s）                            |
-| 2   | CI 在 dev push 与 PR 运行 + README 徽章  | ✅ 工作流与徽章就绪 / ⏸ 待推送 GitHub 后实跑 | ci.yml + README 徽章与说明                                |
-| 3   | 并发不超卖/支付幂等/状态机测试存在且通过 | ✅                                           | inventory.concurrency / payment.mock / order.stateMachine |
-| 4   | service 覆盖率 ≥80%（CI 输出）           | ✅ 96.5%（阈值挂在 test:unit，CI 同命令）    | TEST_REPORT §2                                            |
+| #   | 验收项                                   | 状态                                                                                                            | 证据                                                                |
+| --- | ---------------------------------------- | --------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------- |
+| 1   | pnpm test 一键通过；unit <60s；e2e <5min | ✅                                                                                                              | TEST_REPORT §1/§5（13s / 32s）                                      |
+| 2   | CI 在 dev push 与 PR 运行 + README 徽章  | ✅ dev push 与 [PR #1](https://github.com/kingsleyli920/demo-e-commerce/pull/1) 检查均 success；README 徽章生效 | [Actions](https://github.com/kingsleyli920/demo-e-commerce/actions) |
+| 3   | 并发不超卖/支付幂等/状态机测试存在且通过 | ✅                                                                                                              | inventory.concurrency / payment.mock / order.stateMachine           |
+| 4   | service 覆盖率 ≥80%（CI 输出）           | ✅ 96.5%（阈值挂在 test:unit，CI 同命令）                                                                       | TEST_REPORT §2                                                      |
 
 ## P0-10 AI 协作留痕
 
-| #   | 验收项                                                                                          | 状态                                                                          | 证据                                                            |
-| --- | ----------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- | --------------------------------------------------------------- |
-| 1   | 单一 dev 分支；Conventional Commits + scope；chore(mN) 验收提交；test 先于 feat；Co-Authored-By | ✅                                                                            | `git log --oneline`（M2 验收提交为补录并已在 AI_WORKFLOW 说明） |
-| 2   | AI_WORKFLOW.md 逐里程碑随做随记                                                                 | ✅                                                                            | AI_WORKFLOW.md M1–M4 段 + 总览表                                |
-| 3   | ADR×3                                                                                           | ✅                                                                            | docs/adr/0001–0003                                              |
-| 4   | CLAUDE.md + rules + 双 hooks + code-reviewer                                                    | ✅                                                                            | CLAUDE.md（67 行）/.claude/**                                   |
-| 5   | 独立 Review 无 Critical/High 遗留；tag p0-done；Final PR                                        | ✅ Review 完成并复验 / tag 已打 / PR 材料就绪（待建 remote，见 FINAL_REPORT） | AI_WORKFLOW §3；docs/FINAL_PR.md                                |
-| 6   | 3–5 分钟录屏 + 截图                                                                             | ✅ 3 分 05 秒                                                                 | docs/screenshots/demo-p0-key-flows.webm + 12 张截图             |
+| #   | 验收项                                                                                          | 状态                                                                                                                                                                                                                                                                                     | 证据                                                            |
+| --- | ----------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------- |
+| 1   | 单一 dev 分支；Conventional Commits + scope；chore(mN) 验收提交；test 先于 feat；Co-Authored-By | ✅                                                                                                                                                                                                                                                                                       | `git log --oneline`（M2 验收提交为补录并已在 AI_WORKFLOW 说明） |
+| 2   | AI_WORKFLOW.md 逐里程碑随做随记                                                                 | ✅                                                                                                                                                                                                                                                                                       | AI_WORKFLOW.md M1–M4 段 + 总览表                                |
+| 3   | ADR×3                                                                                           | ✅                                                                                                                                                                                                                                                                                       | docs/adr/0001–0003                                              |
+| 4   | CLAUDE.md + rules + 双 hooks + code-reviewer                                                    | ✅                                                                                                                                                                                                                                                                                       | CLAUDE.md（67 行）/.claude/**                                   |
+| 5   | 独立 Review 无 Critical/High 遗留；tag p0-done；Final PR                                        | ✅ 两轮**同模型（claude-fable-5）、隔离上下文的只读 Reviewer** 审查（第 1 轮 High 1 已修复复验；终审 Critical 0 / High 0，Medium/Low 全部修复）；tag `p0-done` 已推送；Final PR [#1](https://github.com/kingsleyli920/demo-e-commerce/pull/1)（dev → main）已创建、CI 绿、按约定暂不合并 | AI_WORKFLOW §3；docs/FINAL_PR.md                                |
+| 6   | 3–5 分钟录屏 + 截图                                                                             | ✅ 3 分 05 秒                                                                                                                                                                                                                                                                            | docs/screenshots/demo-p0-key-flows.webm + 12 张截图             |

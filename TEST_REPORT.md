@@ -4,15 +4,15 @@
 
 ## 1. 总览
 
-| 命令                           | 结果                            | 说明                                                                                               |
-| ------------------------------ | ------------------------------- | -------------------------------------------------------------------------------------------------- |
-| `pnpm lint`                    | ✅ 0 error / 0 warning          | ESLint 9（next/core-web-vitals + ts）                                                              |
-| `pnpm typecheck`               | ✅                              | `next typegen && tsc --noEmit`（strict）                                                           |
-| `pnpm test:unit`               | ✅ **103/103**（20 文件，~13s） | Vitest 4：node 项目直连 `shop_test`（文件串行 + 每文件 resetDb + factories），jsdom 项目跑组件测试 |
-| `pnpm test:e2e`                | ✅ **47/47**（12 文件，~32s）   | Playwright chromium，对 `pnpm dev` + 完整 seed；setup 先重置 seed 并保存买家/管理员会话            |
-| `pnpm build`                   | ✅                              | Next 16 production build（Turbopack），全部路由动态渲染                                            |
-| `pnpm demo:record`             | ✅                              | 3 分 05 秒关键流程录屏 + 12 张截图 → `docs/screenshots/`                                           |
-| CI（.github/workflows/ci.yml） | ⏸ 已就绪未实跑                  | 仓库暂无 GitHub remote；工作流通过 actionlint 校验，步骤与本地命令一一对应                         |
+| 命令                 | 结果                            | 说明                                                                                                                                                                                                                                                                                                 |
+| -------------------- | ------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `pnpm lint`          | ✅ 0 error / 0 warning          | ESLint 9（next/core-web-vitals + ts）                                                                                                                                                                                                                                                                |
+| `pnpm typecheck`     | ✅                              | `next typegen && tsc --noEmit`（strict）                                                                                                                                                                                                                                                             |
+| `pnpm test:unit`     | ✅ **103/103**（20 文件，~13s） | Vitest 4：node 项目直连 `shop_test`（文件串行 + 每文件 resetDb + factories），jsdom 项目跑组件测试                                                                                                                                                                                                   |
+| `pnpm test:e2e`      | ✅ **47/47**（12 文件，~32s）   | Playwright chromium，对 `pnpm dev` + 完整 seed；setup 先重置 seed 并保存买家/管理员会话                                                                                                                                                                                                              |
+| `pnpm build`         | ✅                              | Next 16 production build（Turbopack），全部路由动态渲染                                                                                                                                                                                                                                              |
+| `pnpm demo:record`   | ✅                              | 3 分 05 秒关键流程录屏 + 12 张截图 → `docs/screenshots/`                                                                                                                                                                                                                                             |
+| CI（GitHub Actions） | ✅ 实跑全绿                     | dev push run [32673389550](https://github.com/kingsleyli920/demo-e-commerce/actions/runs/32673389550)（2m40s）与 PR #1 run [32673391819](https://github.com/kingsleyli920/demo-e-commerce/actions/runs/32673391819)（2m31s）：lint → typecheck → migrate → unit(coverage) → build → e2e 全部 success |
 
 ## 2. 覆盖率（`pnpm test:unit`，@vitest/coverage-v8，阈值 80/70/80/80）
 

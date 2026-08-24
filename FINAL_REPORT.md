@@ -5,20 +5,20 @@
 
 ## 1. 结论
 
-**M1–M4 全部 P0 验收 PASS。** 单一 `dev` 分支，`p0-done` 时点 main 之上 33 个提交（此后仅文档/格式提交）。净耗时 ≈3.9h / 预算 24h，人工介入 0 次。
+**M1–M4 全部 P0 验收 PASS。** 单一 `dev` 分支：`p0-done` 时点 main 之上 **33** 个提交；Final PR [#1](https://github.com/kingsleyli920/demo-e-commerce/pull/1) 当前共 **38** 个提交（差值为其后的文档/格式收尾提交）。总耗时 **≈3.9h**（Agent 对各阶段工作量的估算，非精确 wall-clock）/ 预算 24h；产品和技术层面人工介入 **0 次**，额度恢复后的运行续接 **1 次**。
 
 ## 2. 成功条件逐条核对（用户 /goal 定义）
 
-| #   | 条件                                                                                         | 结果                                                                                                                                                                |
-| --- | -------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1   | M1–M4 全部 P0 验收项 PASS                                                                    | ✅ `ACCEPTANCE_MATRIX.md`（docs/plan/03 全部条目附证据）                                                                                                            |
-| 2   | lint / typecheck / unit / integration / Playwright E2E / production build 实际运行且退出码 0 | ✅ 最终复跑（fix(m4) 后）：lint 0 问题；typecheck 绿；unit+integration **103/103**（Vitest，直连 shop_test）；E2E **47/47**（Playwright chromium）；`pnpm build` 绿 |
-| 3   | 按 README 从干净本地环境启动                                                                 | ✅ 实测 `db:reset → db:migrate → db:seed → dev`（README 命令逐条核验；Docker Postgres 5433）                                                                        |
-| 4   | 核心购物流程 + 最小后台流程可实际完成                                                        | ✅ `full-journey` E2E + 3 分 05 秒录屏（真人视角完整走通）                                                                                                          |
-| 5   | 无未解决 Critical / High                                                                     | ✅ 两轮独立 Review：第 1 轮 High 1（open redirect）已修复复验；终审 **Critical 0 / High 0**，Medium/Low 全部当场修复                                                |
-| 6   | 工作区干净且存在最终本地 Commit                                                              | ✅ `git status` clean；HEAD = `chore(m4)`（tag `p0-done`）                                                                                                          |
-| 7   | AI_WORKFLOW / TEST_REPORT / ACCEPTANCE_MATRIX / FINAL_REPORT 已更新                          | ✅ 四份俱全（AI_WORKFLOW 含 §3 两轮 Review、§4 M5 门槛、§5 复盘）                                                                                                   |
-| 8   | 最终回复展示命令/测试/Commit/耗时/介入/Agent 使用/失败恢复                                   | ✅ 见 Session 最终回复与本报告 §3–§6                                                                                                                                |
+| #   | 条件                                                                                         | 结果                                                                                                                                                                  |
+| --- | -------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | M1–M4 全部 P0 验收项 PASS                                                                    | ✅ `ACCEPTANCE_MATRIX.md`（docs/plan/03 全部条目附证据）                                                                                                              |
+| 2   | lint / typecheck / unit / integration / Playwright E2E / production build 实际运行且退出码 0 | ✅ 最终复跑（fix(m4) 后）：lint 0 问题；typecheck 绿；unit+integration **103/103**（Vitest，直连 shop_test）；E2E **47/47**（Playwright chromium）；`pnpm build` 绿   |
+| 3   | 按 README 从干净本地环境启动                                                                 | ✅ 实测 `db:reset → db:migrate → db:seed → dev`（README 命令逐条核验；Docker Postgres 5433）                                                                          |
+| 4   | 核心购物流程 + 最小后台流程可实际完成                                                        | ✅ `full-journey` E2E + 3 分 05 秒录屏（真人视角完整走通）                                                                                                            |
+| 5   | 无未解决 Critical / High                                                                     | ✅ 两轮**同模型（claude-fable-5）、隔离上下文的只读 Reviewer** 审查：第 1 轮 High 1（open redirect）已修复复验；终审 **Critical 0 / High 0**，Medium/Low 全部当场修复 |
+| 6   | 工作区干净且存在最终本地 Commit                                                              | ✅ `git status` clean；HEAD = `chore(m4)`（tag `p0-done`）                                                                                                            |
+| 7   | AI_WORKFLOW / TEST_REPORT / ACCEPTANCE_MATRIX / FINAL_REPORT 已更新                          | ✅ 四份俱全（AI_WORKFLOW 含 §3 两轮 Reviewer 记录、§4 M5 门槛、§5 复盘）                                                                                              |
+| 8   | 最终回复展示命令/测试/Commit/耗时/介入/Agent 使用/失败恢复                                   | ✅ 见 Session 最终回复与本报告 §3–§6                                                                                                                                  |
 
 ## 3. 实际执行的关键命令与结果（最终一轮）
 
@@ -33,7 +33,7 @@ pnpm demo:record               → 3 分 05 秒录屏 + 12 截图（docs/screens
 并发护栏：50 并发同 SKU（库存 10）→ 恰 10 单成功 / 40 拒绝，支付后 stock=0 locked=0，无负数
 ```
 
-## 4. 耗时与介入
+## 4. 耗时与介入（耗时为 Agent 工作量估算，非精确 wall-clock）
 
 | 里程碑                      | 净耗时    | 预算 | 人工介入 |
 | --------------------------- | --------- | ---- | -------- |
@@ -43,12 +43,12 @@ pnpm demo:record               → 3 分 05 秒录屏 + 12 截图（docs/screens
 | M4 后台与验收（含终审修复） | ≈1.9h     | 5h   | 0        |
 | **合计**                    | **≈3.9h** | 24h  | **0**    |
 
-挂钟 01:00–13:50；01:35–12:16 为 Claude 会话限额暂停（不计净耗时）。人工介入定义与计数口径见 AI_WORKFLOW（「继续」恢复指令不计）。
+挂钟 01:00–13:50；01:35–12:16 为 Claude 会话限额暂停。口径：产品和技术层面介入 **0 次**；额度恢复后的**运行续接 1 次**（用户「继续」，发生于 M2 期间，已计入总览表）；净耗时为估算值（定义见 AI_WORKFLOW §0 口径说明）。
 
 ## 5. Agent / Skills / 工具使用
 
 - **Workflow 多子代理**：① `api-cheatsheets`（5 并行只读调研：Next 16 / Better Auth 1.7 / Drizzle 0.45 / shadcn 4.19 / Vitest 4 + Playwright 1.62，对照 node_modules 实测）；② `seed-data-gen`（6 并行生成 150 SPU 中文数据，脚本强校验一次通过）。
-- **code-reviewer 只读子代理**：两轮独立审查（M1+M2 轮、P0 终审轮），全部发现已修复复验。
+- **code-reviewer 只读 Reviewer**：两轮审查（M1+M2 轮、P0 终审轮），同模型（claude-fable-5）、隔离上下文（不携带主线程对话、无写权限），全部发现已修复复验。
 - **hooks**：PreToolUse 危险命令拦截（重写后 17 条回归用例）+ PostToolUse prettier。
 - 未安装任何新 Plugins/MCP（按用户约束；docs/plan/02 所列 4 个插件用等价手段覆盖并记录于 AI_WORKFLOW）。
 
@@ -59,5 +59,5 @@ pnpm demo:record               → 3 分 05 秒录屏 + 12 截图（docs/screens
 ## 7. 遗留与待用户决定（无阻塞）
 
 1. **已推送 GitHub**：https://github.com/kingsleyli920/demo-e-commerce（main / dev / tag `p0-done`）。CI 两轮全绿（dev push 2m21s、PR 2m52s）；Final PR [#1](https://github.com/kingsleyli920/demo-e-commerce/pull/1)（dev → main）已创建，按用户约定**未合并**。
-2. **M5 AI 导购未启动**：门槛三条中 1、2 已满足，累计 3.9h ≤ 24h 且剩余充足；但 M5 需要 `ANTHROPIC_API_KEY`（真实密钥/按量付费），属用户明确要求停下询问的事项。
+2. **M5 AI 导购未启动**：门槛三条均满足（累计 ≈3.9h（估算）≤ 24h 且剩余充足）；但 M5 需要 `ANTHROPIC_API_KEY`（真实密钥/按量付费），属用户明确要求停下询问的事项。
 3. `BLOCKERS.md` / `CONTINUE_FROM_HERE.md` 未创建：无「3 个方案仍失败」的阻塞项，亦未触发硬停止。

@@ -81,4 +81,6 @@ docs/{plan,adr,research,screenshots}             .claude/             rules / ho
 | M4 后台与验收    | ✅                                       | ≈1.9h / 5h    |
 | M5 AI 导购（P1） | 未启动（门槛检查见 `AI_WORKFLOW.md` §4） | — / 6h        |
 
+> 净耗时为 Agent 对各阶段工作量的估算（非精确 wall-clock）；产品和技术层面人工介入 0 次，另有额度恢复后的运行续接 1 次（详见 `AI_WORKFLOW.md`）。
+
 明确不做：真实支付、多商户、对外 MCP、营销玩法、物流对接、推荐、图搜、i18n、移动端、游客购物车、公网部署（完整清单见 `docs/plan/01` §1.3）。
